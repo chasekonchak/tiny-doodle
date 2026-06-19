@@ -37,7 +37,8 @@
     "publish": {
       "provider": "github",
       "owner": "chasekonchak",
-      "repo": "tiny-doodle"
+      "repo": "tiny-doodle",
+      "releaseType": "release"
     }
   },
   "dependencies": {
