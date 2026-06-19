@@ -117,6 +117,24 @@ customColor.addEventListener('input', () => {
   swatches.forEach(s => s.classList.remove('active'));
 });
 
+// ---------- Background ----------
+const bgSwatches = document.querySelectorAll('.bg-swatch');
+
+function setBackground(bg) {
+  wrap.classList.toggle('bg-white', bg === 'white');
+  bgSwatches.forEach(b => b.classList.toggle('active', b.dataset.bg === bg));
+  try { localStorage.setItem('tinydoodle.bg', bg); } catch (e) { /* ignore */ }
+}
+
+bgSwatches.forEach(b => {
+  b.addEventListener('click', () => setBackground(b.dataset.bg));
+});
+
+// Restore the saved background choice (defaults to dark)
+let savedBg = 'dark';
+try { savedBg = localStorage.getItem('tinydoodle.bg') || 'dark'; } catch (e) { /* ignore */ }
+setBackground(savedBg);
+
 // ---------- Drawing logic ----------
 // Maps a pointer event to canvas-pixel coordinates (handles any CSS/device scaling)
 function getCanvasPos(e) {
