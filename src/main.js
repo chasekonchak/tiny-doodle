@@ -1,5 +1,6 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, clipboard, nativeImage } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
 
 let mainWindow;
@@ -90,4 +91,33 @@ ipcMain.on('toggle-pin', (event, shouldPin) => {
 
 ipcMain.on('window-drag-start', () => {
   // handled via CSS -webkit-app-region: drag in renderer
+});
+
+// ---------- Export: save PNG to disk ----------
+ipcMain.handle('save-png', async (event, dataUrl) => {
+  const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+    title: 'Save drawing',
+    defaultPath: 'doodle.png',
+    filters: [{ name: 'PNG Image', extensions: ['png'] }]
+  });
+  if (canceled || !filePath) return { ok: false, canceled: true };
+  try {
+    const base64 = String(dataUrl).replace(/^data:image\/png;base64,/, '');
+    await fs.promises.writeFile(filePath, Buffer.from(base64, 'base64'));
+    return { ok: true, path: filePath };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+});
+
+// ---------- Export: copy PNG to clipboard ----------
+ipcMain.handle('copy-image', (event, dataUrl) => {
+  try {
+    const img = nativeImage.createFromDataURL(dataUrl);
+    if (img.isEmpty()) return { ok: false, error: 'empty image' };
+    clipboard.writeImage(img);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
 });

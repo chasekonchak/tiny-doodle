@@ -18,16 +18,26 @@
 
   <div id="canvasWrap">
     <canvas id="board"></canvas>
+    <div id="brushCursor"></div>
+    <div id="zoomIndicator"></div>
   </div>
 
   <div id="toolbar">
     <div class="row">
       <button id="undoBtn" class="tool-btn" title="Undo (Ctrl+Z)" disabled>↩</button>
       <button id="redoBtn" class="tool-btn" title="Redo (Ctrl+Y)" disabled>↪</button>
-      <button id="penTool" class="tool-btn active" title="Pen">✏️</button>
-      <button id="eraserTool" class="tool-btn" title="Eraser">🧽</button>
-      <button id="clearBtn" class="tool-btn" title="Clear canvas">🗑️</button>
+      <button id="penTool" class="tool-btn active" title="Pen (P)">✏️</button>
+      <button id="eraserTool" class="tool-btn" title="Eraser (E)">🧽</button>
+      <button id="toolsBtn" class="tool-btn flyout-toggle" title="Shapes &amp; tools">╱</button>
       <button id="moreBtn" class="tool-btn" title="More options">⋯</button>
+    </div>
+
+    <div id="toolsFlyout" class="flyout hidden">
+      <button class="flyout-btn" data-tool="line" title="Line (L)">╱</button>
+      <button class="flyout-btn" data-tool="rect" title="Rectangle (R)">▭</button>
+      <button class="flyout-btn" data-tool="ellipse" title="Ellipse (O)">◯</button>
+      <button class="flyout-btn" data-tool="fill" title="Fill (G)">🪣</button>
+      <button class="flyout-btn" data-tool="eyedropper" title="Eyedropper (I)">💧</button>
     </div>
 
     <div id="panel" class="panel hidden">
@@ -55,6 +65,33 @@
         <button class="bg-swatch active" data-bg="dark" title="Dark background"></button>
         <button class="bg-swatch" data-bg="white" title="White background"></button>
       </div>
+
+      <label class="panel-label">Pixel mode</label>
+      <button id="pixelToggle" class="panel-btn">Pixel: OFF</button>
+
+      <label class="panel-label">Zoom <span class="hint">(wheel / Space-drag to pan)</span></label>
+      <div class="btn-row">
+        <button id="zoomOut" class="panel-btn" title="Zoom out (-)">−</button>
+        <button id="zoomReset" class="panel-btn" title="Reset to 100% (0)">100%</button>
+        <button id="zoomIn" class="panel-btn" title="Zoom in (+)">+</button>
+      </div>
+
+      <label class="panel-label">Canvas</label>
+      <button id="clearBtn" class="panel-btn" title="Clear canvas">🗑️ Clear</button>
+
+      <label class="panel-label">Export PNG</label>
+      <label class="check-row"><input type="checkbox" id="transparentBg" checked /> Transparent background</label>
+      <div class="btn-row">
+        <select id="exportScale" title="Export scale">
+          <option value="1">1×</option>
+          <option value="2">2×</option>
+          <option value="4">4×</option>
+          <option value="8">8×</option>
+        </select>
+        <button id="exportSave" class="panel-btn">Save</button>
+        <button id="exportCopy" class="panel-btn">Copy</button>
+      </div>
+      <div id="exportStatus" class="hint"></div>
     </div>
   </div>
 
