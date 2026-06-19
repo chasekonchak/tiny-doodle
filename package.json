@@ -1,6 +1,6 @@
 {
   "name": "tiny-doodle",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A tiny, resizable doodle/drawing desktop app",
   "main": "src/main.js",
   "author": "Chase",

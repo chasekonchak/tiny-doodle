@@ -67,6 +67,8 @@ const eraserTool = document.getElementById('eraserTool');
 const clearBtn = document.getElementById('clearBtn');
 const moreBtn = document.getElementById('moreBtn');
 const panel = document.getElementById('panel');
+const undoBtn = document.getElementById('undoBtn');
+const redoBtn = document.getElementById('redoBtn');
 
 const sizeSlider = document.getElementById('sizeSlider');
 const sizeVal = document.getElementById('sizeVal');
@@ -87,6 +89,60 @@ eraserTool.addEventListener('click', () => setActiveTool('eraser'));
 clearBtn.addEventListener('click', () => {
   bctx.clearRect(0, 0, buffer.width, buffer.height);
   redrawVisible();
+  pushHistory();
+});
+
+// ---------- Undo / Redo ----------
+// History is a list of full-buffer snapshots; histIndex points at the
+// state currently shown. New actions truncate any "redo" states ahead.
+let history = [];
+let histIndex = -1;
+const HISTORY_LIMIT = 40;
+
+function pushHistory() {
+  if (histIndex < history.length - 1) {
+    history = history.slice(0, histIndex + 1); // drop redo branch
+  }
+  history.push(bctx.getImageData(0, 0, buffer.width, buffer.height));
+  if (history.length > HISTORY_LIMIT) history.shift();
+  histIndex = history.length - 1;
+  updateUndoRedoButtons();
+}
+
+function restoreCurrent() {
+  const snap = history[histIndex];
+  bctx.clearRect(0, 0, buffer.width, buffer.height);
+  if (snap) bctx.putImageData(snap, 0, 0);
+  redrawVisible();
+}
+
+function undo() {
+  if (histIndex <= 0) return;
+  histIndex--;
+  restoreCurrent();
+  updateUndoRedoButtons();
+}
+
+function redo() {
+  if (histIndex >= history.length - 1) return;
+  histIndex++;
+  restoreCurrent();
+  updateUndoRedoButtons();
+}
+
+function updateUndoRedoButtons() {
+  undoBtn.disabled = histIndex <= 0;
+  redoBtn.disabled = histIndex >= history.length - 1;
+}
+
+undoBtn.addEventListener('click', undo);
+redoBtn.addEventListener('click', redo);
+
+window.addEventListener('keydown', (e) => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+  else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); }
 });
 
 moreBtn.addEventListener('click', () => {
@@ -210,8 +266,13 @@ canvas.addEventListener('pointermove', (e) => {
   lastY = pos.y;
 });
 
-window.addEventListener('pointerup', () => { drawing = false; });
-window.addEventListener('pointercancel', () => { drawing = false; });
+window.addEventListener('pointerup', () => {
+  if (drawing) { drawing = false; pushHistory(); }
+});
+window.addEventListener('pointercancel', () => {
+  if (drawing) { drawing = false; pushHistory(); }
+});
 
 // ---------- Init ----------
 resizeCanvasToWrap();
+pushHistory(); // record the initial blank canvas as the baseline state

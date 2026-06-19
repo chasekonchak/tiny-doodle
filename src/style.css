@@ -164,6 +164,15 @@ html, body {
   border-color: var(--accent);
 }
 
+.tool-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.tool-btn:disabled:hover {
+  background: transparent;
+}
+
 /* ---- Options panel ---- */
 .panel {
   position: absolute;
